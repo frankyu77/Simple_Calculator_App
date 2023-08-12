@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!--button is normal-->
+    <item
+        android:state_pressed="false"
+        android:state_focused="false">
+
+        <shape android:innerRadiusRatio="1"
+            android:shape="rectangle">
+
+            <solid android:color="#505050" />
+            <corners android:bottomLeftRadius="200dp"
+                android:bottomRightRadius="200dp"
+                android:topLeftRadius="200dp"
+                android:topRightRadius="200dp" />
+        </shape>
+    </item>
+
+    <!--button is pressed-->
+    <item
+        android:state_pressed="true"
+        android:state_focused="false">
+
+        <shape android:innerRadiusRatio="1"
+            android:shape="rectangle">
+
+            <solid android:color="#b0b0b6" />
+            <corners android:bottomLeftRadius="200dp"
+                android:bottomRightRadius="200dp"
+                android:topLeftRadius="200dp"
+                android:topRightRadius="200dp" />
+        </shape>
+    </item>
+
+
+</selector>
