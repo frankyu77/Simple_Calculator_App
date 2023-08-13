@@ -314,7 +314,7 @@
         app:layout_constraintVertical_bias="0.829" />
 
     <Button
-        android:id="@+id/button20"
+        android:id="@+id/equalsbutton"
         android:layout_width="85dp"
         android:layout_height="85dp"
 
