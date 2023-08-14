@@ -14,6 +14,8 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
     private List<String> calculation = new ArrayList<>();
     private int rsf = 0;
+    private int previousNumber = 0;
+    private String currentOperation;
 
     private TextView answer;
     private Button clearButton;
@@ -68,7 +70,23 @@ public class MainActivity extends AppCompatActivity {
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                calculation.add("+");
+                currentOperation = "+";
+                previousNumber = rsf;
+                rsf = 0;
+                calculation.clear();
+                answer.setText("0");
+            }
+        });
+
+        equalsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (currentOperation == "+") { // ONLY FOR PLUS BUTTON RN
+                    int a = previousNumber + rsf;
+                    answer.setText(Integer.toString(a));
+                } else {
+                    answer.setText("Error");
+                }
             }
         });
     }
@@ -79,35 +97,38 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 String result;
-                result = Integer.toString(creatingNumbers(num));
+                result = creatingNumbers(num);
                 answer.setText(result);
             }
         });
     }
 
     //returns all numbers inputted before an operation
-    private int creatingNumbers(String num) {
+    private String creatingNumbers(String num) {
         String numInputed = "";
         calculation.add(num);
 
         for (int i = 0; i < calculation.size(); i++) {
             if (calculation.get(i) == "+" || calculation.get(i) == "-" ||
-                    calculation.get(i) == "*" || calculation.get(i) == "/") {
-                calculation.clear();
-                calculation.add(Integer.toString(this.rsf));
-                calculation.add("+");
-
-                testing();
-
-            } else  {
+                    calculation.get(i) == "*" || calculation.get(i) == "/" ||
+                    calculation.get(i) == "=") {
+                /*calculation.clear();
+                //calculation.add(Integer.toString(this.rsf));
+                currentOperation = "+"; //for PLUS SIGN ONLY
+                previousNumber = rsf;
+                rsf = 0;*/
+                break;
+            } else {
                 numInputed += calculation.get(i);
                 this.rsf = Integer.parseInt(numInputed);
             }
         }
 
-        return this.rsf;
+        return numInputed;
     }
 
+
+    //----------------------------------------------------------------------------------------------
     private void testing() {
         String string = "";
         for (int i = 0; i < calculation.size(); i++) {
@@ -116,6 +137,7 @@ public class MainActivity extends AppCompatActivity {
 
         Log.d("HELLO", string);
     }
+    //----------------------------------------------------------------------------------------------
 
     //assign all the buttons/textview to the private variables above
     private void setUp() {
