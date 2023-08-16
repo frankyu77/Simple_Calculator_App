@@ -1,5 +1,6 @@
 package com.example.simplecalculator;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
@@ -8,13 +9,15 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     private List<String> calculation = new ArrayList<>();
-    private int rsf = 0;
-    private int previousNumber = 0;
+    private double currentNumber = 0;
+    private double previousNumber = 0;
+    private double rsf = 0;
     private String currentOperation;
 
     private TextView answer;
@@ -52,6 +55,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 calculation = new ArrayList<>();
+                previousNumber = 0;
+                currentNumber = 0;
+                currentOperation = "";
                 answer.setText("0");
             }
         });
@@ -71,10 +77,31 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 currentOperation = "+";
-                previousNumber = rsf;
-                rsf = 0;
-                calculation.clear();
-                answer.setText("0");
+                operationClicked();
+            }
+        });
+
+        subtractButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                currentOperation = "-";
+                operationClicked();
+            }
+        });
+
+        multiplyButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                currentOperation = "*";
+                operationClicked();
+            }
+        });
+
+        divisionButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                currentOperation = "/";
+                operationClicked();
             }
         });
 
@@ -82,8 +109,21 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if (currentOperation == "+") { // ONLY FOR PLUS BUTTON RN
-                    int a = previousNumber + rsf;
-                    answer.setText(Integer.toString(a));
+                    setCurrentNumber();
+                    rsf = previousNumber + currentNumber;
+                    printResult(rsf);
+                } else if (currentOperation == "-") {
+                    setCurrentNumber();
+                    rsf = previousNumber - currentNumber;
+                    printResult(rsf);
+                } else if (currentOperation == "*") {
+                    setCurrentNumber();
+                    rsf = previousNumber * currentNumber;
+                    printResult(rsf);
+                } else if (currentOperation == "/") {
+                    setCurrentNumber();
+                    rsf = previousNumber / currentNumber;
+                    printResult(rsf);
                 } else {
                     answer.setText("Error");
                 }
@@ -96,48 +136,47 @@ public class MainActivity extends AppCompatActivity {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String result;
-                result = creatingNumbers(num);
+                calculation.add(num);
+                String result = getNumber();
+                //result = creatingNumbers(num);
                 answer.setText(result);
             }
         });
     }
 
-    //returns all numbers inputted before an operation
-    private String creatingNumbers(String num) {
-        String numInputed = "";
-        calculation.add(num);
-
-        for (int i = 0; i < calculation.size(); i++) {
-            if (calculation.get(i) == "+" || calculation.get(i) == "-" ||
-                    calculation.get(i) == "*" || calculation.get(i) == "/" ||
-                    calculation.get(i) == "=") {
-                /*calculation.clear();
-                //calculation.add(Integer.toString(this.rsf));
-                currentOperation = "+"; //for PLUS SIGN ONLY
-                previousNumber = rsf;
-                rsf = 0;*/
-                break;
-            } else {
-                numInputed += calculation.get(i);
-                this.rsf = Integer.parseInt(numInputed);
-            }
-        }
-
-        return numInputed;
+    //sets currentNumber when equal sign is clicked
+    private void setCurrentNumber() {
+        String result = getNumber();
+        currentNumber = Double.parseDouble(result);
     }
 
+    //sets previousNumber when an operation is clicked
+    private void operationClicked() {
+        String result = getNumber();
+        previousNumber = Double.parseDouble(result);
 
-    //----------------------------------------------------------------------------------------------
-    private void testing() {
-        String string = "";
-        for (int i = 0; i < calculation.size(); i++) {
-            string += calculation.get(i);
-        }
-
-        Log.d("HELLO", string);
+        calculation.clear();
+        answer.setText("0");
     }
-    //----------------------------------------------------------------------------------------------
+
+    //prints the result after the equals button is pressed
+    private void printResult(double r) {
+        calculation.clear();
+        calculation.add(Double.toString(r));
+
+        DecimalFormat format = new DecimalFormat("0.#");
+        answer.setText(format.format(r));
+    }
+
+    // brings the numbers inputted together into one number
+    @NonNull
+    private String getNumber() {
+        String result = "";
+        for (int i = 0; i < calculation.size(); i++) {
+            result += calculation.get(i);
+        }
+        return result;
+    }
 
     //assign all the buttons/textview to the private variables above
     private void setUp() {
