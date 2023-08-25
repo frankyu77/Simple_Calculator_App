@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -16,13 +15,13 @@ import java.util.List;
 // CALCULATOR ROUNDS ALL DECIMALS TO ONE DECIMAL PLACE
 public class MainActivity extends AppCompatActivity {
     private List<String> creatingNumbers = new ArrayList<>();
-    private List<String> calculation = new ArrayList<>();
+    private Calculation calculation = new Calculation();
     private double currentNumber = 0;
     private double previousNumber = 0;
     private double rsf = 0;
     //private String currentOperation;
 
-    private EditText answer;
+    private EditText answerText;
     private Button clearButton;
     private Button negativeButton;  //do last
     private Button percentageButton;  //do last
@@ -56,12 +55,10 @@ public class MainActivity extends AppCompatActivity {
         clearButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                creatingNumbers = new ArrayList<>();
-                calculation = new ArrayList<>();
-                previousNumber = 0;
-                currentNumber = 0;
-                //currentOperation = "";
-                answer.setText("0");
+                creatingNumbers.clear();
+                calculation.clear();
+                rsf = 0;
+                answerText.setText("0");
             }
         });
 
@@ -80,80 +77,64 @@ public class MainActivity extends AppCompatActivity {
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //currentOperation = "+";
                 operationClicked();
-                calculation.add("+");
+                calculation.addOperation("+");
             }
         });
 
         subtractButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //currentOperation = "-";
                 operationClicked();
-                calculation.add("-");
+                calculation.addOperation("-");
             }
         });
 
         multiplyButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //currentOperation = "*";
                 operationClicked();
-                calculation.add("*");
+                calculation.addOperation("*");
             }
         });
 
         divisionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //currentOperation = "/";
                 operationClicked();
-                calculation.add("/");
+                calculation.addOperation("/");
             }
         });
 
         equalsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-/*                if (currentOperation == "+") { // ONLY FOR PLUS BUTTON RN
-                    setCurrentNumber();
-                    rsf = previousNumber + currentNumber;
-                    printResult(rsf);
-                } else if (currentOperation == "-") {
-                    setCurrentNumber();
-                    rsf = previousNumber - currentNumber;
-                    printResult(rsf);
-                } else if (currentOperation == "*") {
-                    setCurrentNumber();
-                    rsf = previousNumber * currentNumber;
-                    printResult(rsf);
-                } else if (currentOperation == "/") {
-                    setCurrentNumber();
-                    rsf = previousNumber / currentNumber;
-                    printResult(rsf);
-                } else {
-                    answer.setText("Error");
-                }
-                currentOperation = "=";
-*/
                 setCurrentNumber();
-
-                rsf = Double.parseDouble(calculation.get(0));
-
-                for (int i = 1; i < calculation.size(); i++) {
-                    if (calculation.get(i) == "+") {
-                        rsf += Double.parseDouble(calculation.get(i+1));
-                    } else if (calculation.get(i) == "-") {
-                        rsf -= Double.parseDouble(calculation.get(i+1));
-                    } else if (calculation.get(i) == "*") {
-                        rsf *= Double.parseDouble(calculation.get(i+1));
-                    } else if (calculation.get(i) == "/") {
-                        rsf /= Double.parseDouble(calculation.get(i+1));
-                    }
-                }
-
+                rsf = calculation.computeCalculation();
                 printResult(rsf);
+            }
+        });
+
+        negativeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                creatingNumbers.add(0, "-");
+                String result = getNumber();
+                creatingNumbers.clear();
+                calculation.addNumber(result);
+                answerText.setText(result);
+            }
+        });
+
+        percentageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                double actualResult;
+                double result = Double.parseDouble(getNumber());
+                actualResult = result / 100;
+                creatingNumbers.clear();
+                calculation.addNumber(Double.toString(actualResult));
+                answerText.setText(Double.toString(actualResult));
             }
         });
     }
@@ -166,7 +147,7 @@ public class MainActivity extends AppCompatActivity {
                 creatingNumbers.add(num);
                 String result = getNumber();
                 //result = creatingNumbers(num);
-                answer.setText(result);
+                answerText.setText(result);
             }
         });
     }
@@ -176,17 +157,18 @@ public class MainActivity extends AppCompatActivity {
         String result = getNumber();
         //currentNumber = Double.parseDouble(result);
         creatingNumbers.clear();
-        calculation.add(result);
+        calculation.addNumber(result);
     }
 
     //sets previousNumber when an operation is clicked
     private void operationClicked() {
         String result = getNumber();
-        //previousNumber = Double.parseDouble(result);
-
         creatingNumbers.clear();
-        calculation.add(result);
-        answer.setText("0");
+
+        if (result.length() != 0) {
+            calculation.addNumber(result);
+        }
+        answerText.setText("0");
     }
 
     // brings the numbers inputted together into one number
@@ -198,11 +180,10 @@ public class MainActivity extends AppCompatActivity {
         }
 
         if (result.indexOf(".") != result.lastIndexOf(".")) {
-            creatingNumbers = new ArrayList<>();
-            calculation = new ArrayList<>();
-            previousNumber = 0;
-            currentNumber = 0;
-            answer.setText("Error");
+            creatingNumbers.clear();
+            calculation.clear();
+            rsf = 0;
+            answerText.setText("Error");
             return "Error";
         }
 
@@ -215,13 +196,13 @@ public class MainActivity extends AppCompatActivity {
         creatingNumbers.add(Double.toString(r));
 
         DecimalFormat format = new DecimalFormat("0.########");
-        answer.setText(format.format(r));
+        answerText.setText(format.format(r));
     }
 
 
     //assign all the buttons/textview to the private variables above
     private void setUp() {
-        answer = (EditText) findViewById(R.id.answer);
+        answerText = (EditText) findViewById(R.id.answer);
 
         clearButton = (Button) findViewById(R.id.clearbutton);
         negativeButton = (Button) findViewById(R.id.negativesignbutton);
